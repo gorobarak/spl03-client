@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <connectionHandler.h>
+#include <ConnectionHandler.h>
 
 #include <iostream>
 #include <mutex>
@@ -8,7 +8,7 @@
 class KeyboardReadTask {
 private:
     std::string taskName;
-    connectionHandler& cHandler;
+    ConnectionHandler& cHandler;
     std::mutex& mutex;
     bool& terminated;
 
@@ -18,7 +18,7 @@ private:
     }
 
 public:
-    KeyboardReadTask(std::string taskName, connectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName) cHandler(cHandler), mutex(mutex), terminated(terminated) {}
+    KeyboardReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
 
     void run() {
         while (true) {
@@ -27,7 +27,7 @@ public:
             std::cin.getline(buf, bufsize);
             std::string line(buf); //input received from kb
             int len=line.length();
-            if (!connectionHandler.sendLine(line)) {
+            if (!ConnectionHandler.sendLine(line)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
