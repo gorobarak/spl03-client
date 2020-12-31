@@ -21,13 +21,13 @@ public:
     KeyboardReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
 
     void run() {
-        while (true) {
+        while (!terminated) {
             const short bufsize = 1024;
             char buf[bufsize];
             std::cin.getline(buf, bufsize);
             std::string line(buf); //input received from kb
             int len=line.length();
-            if (!ConnectionHandler.sendLine(line)) {
+            if (!cHandler.sendLine(line)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
@@ -58,8 +58,13 @@ int main (int argc, char *argv[]) {
     KeyboardReadTask kbTask("keyboard", connectionHandler, mutex, terminated);
     ServerReadTask serverTask("serverRead", connectionHandler, mutex, terminated);
 
-    thread::Thread
+    std::thread t1(&KeyboardReadTask::run, &kbTask);
+    std::thread t2(&ServerReadTask::run, &serverTask);
 
+    t1.join();
+    t2.join();
+
+    connectionHandler.close();
     std::cout << "Exiting...\n" << std::endl;
-
+    return 0;
 }
