@@ -5,6 +5,39 @@
 #include <mutex>
 #include <thread>
 
+class ServerReadTask {
+private:
+    std::string taskName;
+    ConnectionHandler& cHandler;
+    std::mutex& mutex;
+    bool& terminated;
+
+    bool isTerminated(){
+        std::lock_guard<std::mutex> lock(mutex);
+        return terminated;
+    }
+
+public:
+    ServerReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
+
+    void run() {
+        while (!isTerminated()) {
+            std::string ans;
+            if (!cHandler.getLine(ans)) {
+                std::cout << "Disconnected. Exiting...\n" << std::endl;
+                break;
+            }
+
+            std::cout << ans << std::endl;//TODO should ans be modified?
+
+            if (ans == "ACK 4") {//ack for logout request - should terminate
+                std::lock_guard<std::mutex> lock(mutex);
+                terminated = true;
+            }
+        }
+    }
+};
+
 class KeyboardReadTask {
 private:
     std::string taskName;
@@ -21,7 +54,7 @@ public:
     KeyboardReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
 
     void run() {
-        while (!terminated) {
+        while (!isTerminated()) {
             const short bufsize = 1024;
             char buf[bufsize];
             std::cin.getline(buf, bufsize);
@@ -31,10 +64,8 @@ public:
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
-
         }
     }
-
 };
 
 

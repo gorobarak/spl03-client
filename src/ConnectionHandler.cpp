@@ -64,11 +64,31 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 }
  
 bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, '\n');
+    char c;
+    std::string ans;
+
+    try {
+        do {
+            if (!getBytes(&c, 1)) {
+                return false;
+            }
+            ans = encdec.decodeNextByte(c);
+            if (ans != "-1") {
+                line.append(ans);
+            }
+
+        } while (ans == "-1");
+    } catch (std::exception &e) {
+        std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
+        return false;
+    }
+    return true;
 }
 
+
 bool ConnectionHandler::sendLine(std::string& line) {
-    return sendFrameAscii(line, '\n');
+    std::string encoded = encdec.encode(line);
+    return sendBytes(encoded.c_str(), encoded.length());//TODO do we get \0 char twice?
 }
  
 

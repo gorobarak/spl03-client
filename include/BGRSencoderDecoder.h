@@ -21,7 +21,13 @@ enum operationType {
 
 class BGRSencoderDecoder {
 private:
-    operationType operationType (const std::string& inString)
+
+
+    operationType operationType (const std::string& inString);
+    void pushByte(char c);
+    std::string popString();
+    void shortToBytes(short num, char* byteArr);
+    short bytesToShort(char* bytesArr);
 
 public:
     std::string encode(std::string msg);
