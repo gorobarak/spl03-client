@@ -66,6 +66,7 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 bool ConnectionHandler::getLine(std::string& line) {
     char c;
     std::string ans;
+    std::cout<< "ENTERED GETLINE" << std::endl;//TODO
 
     try {
         do {
@@ -73,6 +74,8 @@ bool ConnectionHandler::getLine(std::string& line) {
                 return false;
             }
             ans = encdec.decodeNextByte(c);
+            std::cout<< "ans = "+ ans << std::endl;//TODO
+
             if (ans != "-1") {
                 line.append(ans);
             }

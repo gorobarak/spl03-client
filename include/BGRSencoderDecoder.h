@@ -23,15 +23,15 @@ enum operationType {
 class BGRSencoderDecoder {
 private:
     int idx = 0;
-    int opcode;
-    int subjectOpcode;
+    short opcode;
+    short subjectOpcode;
     std::vector<char> buffer;
 
 
 
 
 
-    operationType operationType (const std::string& inString);
+    enum operationType operationType (const std::string& inString);
     void pushByte(char c);
     std::string popString();
     void shortToBytes(short num, char* byteArr);

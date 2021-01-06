@@ -1,5 +1,6 @@
 #include <BGRSencoderDecoder.h>
 #include <vector>
+#include <iostream>
 
 operationType BGRSencoderDecoder::operationType (const std::string& inString) {
     if (inString == "ADMINREG") return ADMINREG;
@@ -34,11 +35,11 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             std::string username(msg.substr(0,split));
             std::string pass(msg.substr(split + 1,body.length()));
 
-            for (int i = 0; i < username.size(); i++) {
+            for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
             }
             buffer.push_back('\0');
-            for (int i = 0; i < pass.size(); i++) {
+            for (unsigned int i = 0; i < pass.size(); i++) {
                 buffer.push_back(pass[i]);
             }
             buffer.push_back('\0');
@@ -53,11 +54,11 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             std::string username(msg.substr(0,split));
             std::string pass(msg.substr(split + 1,body.length()));
 
-            for (int i = 0; i < username.size(); i++) {
+            for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
             }
             buffer.push_back('\0');
-            for (int i = 0; i < pass.size(); i++) {
+            for (unsigned int i = 0; i < pass.size(); i++) {
                 buffer.push_back(pass[i]);
             }
             buffer.push_back('\0');
@@ -72,11 +73,11 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             std::string username(msg.substr(0,split));
             std::string pass(msg.substr(split + 1,body.length()));
 
-            for (int i = 0; i < username.size(); i++) {
+            for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
             }
             buffer.push_back('\0');
-            for (int i = 0; i < pass.size(); i++) {
+            for (unsigned int i = 0; i < pass.size(); i++) {
                 buffer.push_back(pass[i]);
             }
             buffer.push_back('\0');
@@ -92,7 +93,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(5, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             break;
@@ -101,7 +102,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(6, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             break;
@@ -110,7 +111,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(7, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             break;
@@ -119,7 +120,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(8, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             buffer.push_back('\0');
@@ -129,7 +130,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(9, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             break;
@@ -138,7 +139,7 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(10, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (int i = 0; i < body.size(); i++) {
+            for (unsigned int i = 0; i < body.size(); i++) {
                 buffer.push_back(body[i]);
             }
             break;
@@ -170,23 +171,37 @@ short BGRSencoderDecoder::bytesToShort(char* bytesArr) {
 }
 
 std::string BGRSencoderDecoder::decodeNextByte(char c) {
+
+    std::cout<< "idx = " + std::to_string(idx)<<std::endl;
+    std::cout<< "opcode = " + std::to_string(opcode)<<std::endl;
     idx++;
     pushByte(c);
     if (idx == 2) {
         char arr[2];
         arr[0] = buffer[0];
         arr[1] = buffer[1];
+        std::cout << "opcode1:" + std::to_string(buffer[0] - '0') << std::endl;
+        std::cout << "opcode2:" + std::to_string(buffer[1] - '0') << std::endl;
+
         opcode = bytesToShort(arr);
+        std::cout<<"opcode:" + std::to_string(opcode) << std::endl;
     } else if (idx == 4) {
         char arr[2];
         arr[0] = buffer[2];
         arr[1] = buffer[3];
+        std::cout << "subpcode1:" + std::to_string(buffer[2] - '0')<< std::endl;
+        std::cout << "subpcode2:" + std::to_string(buffer[3] - '0') << std::endl;
+
         subjectOpcode = bytesToShort(arr);
     }
 
     switch (opcode) {
         case 12: {
             if (c == '\0') {
+                idx = 0;
+                buffer.clear();
+                std::cout<<"reached ack"<<std::endl;
+                std::cout<< "-------------------------------"<<std::endl;
                 return ("ACK " + std::to_string(subjectOpcode) + "\n" + popString());
             }
             break;
@@ -195,9 +210,12 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
         case 13: {//error
             idx = 0;
             buffer.clear();
+            std::cout<<"reached ERR"<<std::endl;
+            std::cout<< "-------------------------------"<<std::endl;
             return ("ERROR " + std::to_string(subjectOpcode));
         }
         default: {
+            std::cout<< "-------------------------------"<<std::endl;
             return "-1";
         }
     }
@@ -205,7 +223,7 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
 
 std::string BGRSencoderDecoder::popString() {
     std::string out;
-    for (int i = 4; i < buffer.size() - 1; i++) {//not including ending \0
+    for (unsigned int i = 4; i < buffer.size() - 1; i++) {//not including ending \0
         out += buffer[i];
     }
     return out;

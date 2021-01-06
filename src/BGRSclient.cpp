@@ -22,11 +22,13 @@ public:
 
     void run() {
         while (!isTerminated()) {
+            //std::cout<< "started server read" << std::endl;//TODO
             std::string ans;
             if (!cHandler.getLine(ans)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
+
 
             std::cout << ans << std::endl;//TODO should ans be modified?
 
@@ -83,6 +85,8 @@ int main (int argc, char *argv[]) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
+
+    std::cout << " connected" << std::endl;//TODO
 
     std::mutex mutex;
     bool terminated = false;
