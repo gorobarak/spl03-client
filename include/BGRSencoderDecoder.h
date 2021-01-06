@@ -2,6 +2,7 @@
 #define BGRSENCODERDECODER__
 
 #include <string>
+#include <vector>
 
 enum operationType {
     ADMINREG,
@@ -21,6 +22,13 @@ enum operationType {
 
 class BGRSencoderDecoder {
 private:
+    int idx = 0;
+    int opcode;
+    int subjectOpcode;
+    std::vector<char> buffer;
+
+
+
 
 
     operationType operationType (const std::string& inString);

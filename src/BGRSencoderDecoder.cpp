@@ -1,7 +1,7 @@
 #include <BGRSencoderDecoder.h>
 #include <vector>
 
-operationType operationType (const std::string& inString) {
+operationType BGRSencoderDecoder::operationType (const std::string& inString) {
     if (inString == "ADMINREG") return ADMINREG;
     if (inString == "LOGIN") return LOGIN;
     if (inString == "LOGOUT") return LOGOUT;
@@ -158,20 +158,61 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
     return std::string(buffer.begin(), buffer.end());
 }
 
-void shortToBytes(short num, char* bytesArr) {
+void BGRSencoderDecoder::shortToBytes(short num, char* bytesArr) {
     bytesArr[0] = ((num >> 8) & 0xFF);
     bytesArr[1] = (num & 0xFF);
 }
 
-short bytesToShort(char* bytesArr) {
+short BGRSencoderDecoder::bytesToShort(char* bytesArr) {
     short result = (short)((bytesArr[0] & 0xff) << 8);
     result += (short)(bytesArr[1] & 0xff);
     return result;
 }
 
 std::string BGRSencoderDecoder::decodeNextByte(char c) {
+    idx++;
+    pushByte(c);
+    if (idx == 2) {
+        char arr[2];
+        arr[0] = buffer[0];
+        arr[1] = buffer[1];
+        opcode = bytesToShort(arr);
+    } else if (idx == 4) {
+        char arr[2];
+        arr[0] = buffer[2];
+        arr[1] = buffer[3];
+        subjectOpcode = bytesToShort(arr);
+    }
 
+    switch (opcode) {
+        case 12: {
+            if (c == '\0') {
+                return ("ACK " + std::to_string(subjectOpcode) + "\n" + popString());
+            }
+            break;
+        }
 
+        case 13: {//error
+            idx = 0;
+            buffer.clear();
+            return ("ERROR " + std::to_string(subjectOpcode));
+        }
+        default: {
+            return "-1";
+        }
+    }
+}
+
+std::string BGRSencoderDecoder::popString() {
+    std::string out;
+    for (int i = 4; i < buffer.size() - 1; i++) {//not including ending \0
+        out += buffer[i];
+    }
+    return out;
+}
+
+void BGRSencoderDecoder::pushByte(char c) {
+    buffer.push_back(c);
 }
 
 
