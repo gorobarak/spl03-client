@@ -4,6 +4,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 
 class ServerReadTask {
 private:
@@ -11,6 +12,7 @@ private:
     ConnectionHandler& cHandler;
     std::mutex& mutex;
     bool& terminated;
+    std::condition_variable& cv;
 
     bool isTerminated(){
         std::lock_guard<std::mutex> lock(mutex);
@@ -18,7 +20,8 @@ private:
     }
 
 public:
-    ServerReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
+    ServerReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated, std::condition_variable& cv) :
+        taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated), cv(cv) {}
 
     void run() {
         while (!isTerminated()) {
@@ -32,11 +35,18 @@ public:
 
             std::cout << ans << std::endl;//TODO should ans be modified?
 
-            if (ans == "ACK 4") {//ack for logout request - should terminate
-                std::lock_guard<std::mutex> lock(mutex);
-                terminated = true;
+            if (ans == "ACK 4" && terminated) {//ack for logout request - should terminate
+                cv.notify_all();
+            }
+            else if (ans == "ERROR 4" && terminated) {
+                mutex.lock();
+                terminated = false;
+                mutex.unlock();
+                cv.notify_all();
+
             }
         }
+        std::this_thread::yield();
     }
 };
 
@@ -46,6 +56,8 @@ private:
     ConnectionHandler& cHandler;
     std::mutex& mutex;
     bool& terminated;
+    std::condition_variable& cv;
+    std::unique_lock<std::mutex>& waitOn;
 
     bool isTerminated(){
         std::lock_guard<std::mutex> lock(mutex);
@@ -53,7 +65,8 @@ private:
     }
 
 public:
-    KeyboardReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated) : taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated) {}
+    KeyboardReadTask(std::string taskName, ConnectionHandler& cHandler, std::mutex& mutex, bool& terminated, std::condition_variable& cv, std::unique_lock<std::mutex>& waitOn) :
+            taskName(taskName), cHandler(cHandler), mutex(mutex), terminated(terminated), cv(cv), waitOn(waitOn)  {}
 
     void run() {
         while (!isTerminated()) {
@@ -66,7 +79,15 @@ public:
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
+            if (line == "LOGOUT"){
+                mutex.lock();
+                terminated = true;
+                mutex.unlock();
+                cv.wait(waitOn);
+                if(terminated) break;
+            }
         }
+        std::this_thread::yield();
     }
 };
 
@@ -89,9 +110,12 @@ int main (int argc, char *argv[]) {
     //std::cout << " connected" << std::endl;//TODO
 
     std::mutex mutex;
+    std::mutex notify;
     bool terminated = false;
-    KeyboardReadTask kbTask("keyboard", connectionHandler, mutex, terminated);
-    ServerReadTask serverTask("serverRead", connectionHandler, mutex, terminated);
+    std::condition_variable cv;
+    std::unique_lock<std::mutex> waitOn(notify);
+    KeyboardReadTask kbTask("keyboard", connectionHandler, mutex, terminated, cv, waitOn);
+    ServerReadTask serverTask("serverRead", connectionHandler, mutex, terminated, cv);
 
     std::thread t1(&KeyboardReadTask::run, &kbTask);
     std::thread t2(&ServerReadTask::run, &serverTask);

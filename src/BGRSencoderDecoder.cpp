@@ -234,7 +234,7 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
                 //std::cout << "case 12" << std::endl;
                 //std::cout<<"reached ack"<<std::endl;
                 //std::cout<< "-------------------------------"<<std::endl;
-                return ("ACK " + std::to_string(subjectOpcode) + "\n" + popString());
+                return ("ACK " + std::to_string(subjectOpcode)  + popString());
             }
             break;
         }
@@ -265,7 +265,7 @@ std::string BGRSencoderDecoder::popString() {
     }
     idx = 0;
     buffer.clear();
-    return out;
+    return (out.length() == 0) ? out : "\n" + out;
 }
 
 void BGRSencoderDecoder::pushByte(char c) {
