@@ -172,53 +172,74 @@ short BGRSencoderDecoder::bytesToShort(char* bytesArr) {
 
 std::string BGRSencoderDecoder::decodeNextByte(char c) {
 
-    std::cout<< "idx = " + std::to_string(idx)<<std::endl;
-    std::cout<< "opcode = " + std::to_string(opcode)<<std::endl;
+    //std::cout<< "idx = " + std::to_string(idx)<<std::endl;
+    //std::cout<< "opcode = " + std::to_string(opcode)<<std::endl;
     idx++;
     pushByte(c);
+    std::cout<<"opcode:";
+    std::cout<<opcode<<std::endl;
+    std::cout<< "idx = " + std::to_string(idx)<< std::endl;
     if (idx == 2) {
         char arr[2];
         arr[0] = buffer[0];
         arr[1] = buffer[1];
-        std::cout << "opcode1:" + std::to_string(buffer[0] - '0') << std::endl;
-        std::cout << "opcode2:" + std::to_string(buffer[1] - '0') << std::endl;
+
+        std::cout << "opCode: ";
+        std::cout << arr[0];
+        std::cout << ", ";
+        std::cout << arr[1];
+        std::cout << "\n";
 
         opcode = bytesToShort(arr);
-        std::cout<<"opcode:" + std::to_string(opcode) << std::endl;
-    } else if (idx == 4) {
+        //std::cout<<"opcode:" + std::to_string(opcode) << std::endl;
+    }
+    if (idx == 4) {
         char arr[2];
         arr[0] = buffer[2];
         arr[1] = buffer[3];
-        std::cout << "subpcode1:" + std::to_string(buffer[2] - '0')<< std::endl;
-        std::cout << "subpcode2:" + std::to_string(buffer[3] - '0') << std::endl;
+        //std::cout << "subpcode1:" + std::to_string(buffer[2] - '0')<< std::endl;
+        //std::cout << "subpcode2:" + std::to_string(buffer[3] - '0') << std::endl;
 
         subjectOpcode = bytesToShort(arr);
+        std::cout << "subjectCode: ";
+        std::cout << arr[0];
+        std::cout << ", ";
+        std::cout << arr[1];
+        std::cout << "\n";
+    }
+
+    if(idx <= 4) {
+        return "-1";
     }
 
     switch (opcode) {
         case 12: {
             if (c == '\0') {
-                idx = 0;
-                buffer.clear();
-                std::cout<<"reached ack"<<std::endl;
-                std::cout<< "-------------------------------"<<std::endl;
+                std::cout << "case 12" << std::endl;
+                //std::cout<<"reached ack"<<std::endl;
+                //std::cout<< "-------------------------------"<<std::endl;
                 return ("ACK " + std::to_string(subjectOpcode) + "\n" + popString());
             }
             break;
         }
 
         case 13: {//error
-            idx = 0;
-            buffer.clear();
-            std::cout<<"reached ERR"<<std::endl;
-            std::cout<< "-------------------------------"<<std::endl;
-            return ("ERROR " + std::to_string(subjectOpcode));
+            if (c == '\0') {
+                idx = 0;
+                buffer.clear();
+                std::cout << "case 13" << std::endl;
+                //std::cout<<"reached ERR"<<std::endl;
+                //std::cout<< "-------------------------------"<<std::endl;
+                return ("ERROR " + std::to_string(subjectOpcode));
+            }
+            break;
         }
-        default: {
-            std::cout<< "-------------------------------"<<std::endl;
-            return "-1";
-        }
+//        default: {
+//            std::cout<< "-------------------------------"<<std::endl;
+//            return "-1";
+//        }
     }
+    return "-1";
 }
 
 std::string BGRSencoderDecoder::popString() {
@@ -226,6 +247,8 @@ std::string BGRSencoderDecoder::popString() {
     for (unsigned int i = 4; i < buffer.size() - 1; i++) {//not including ending \0
         out += buffer[i];
     }
+    idx = 0;
+    buffer.clear();
     return out;
 }
 

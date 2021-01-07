@@ -66,19 +66,24 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 bool ConnectionHandler::getLine(std::string& line) {
     char c;
     std::string ans;
-    std::cout<< "ENTERED GETLINE" << std::endl;//TODO
+    //std::cout<< "ENTERED GETLINE" << std::endl;//TODO
 
     try {
         do {
+            std::cout<<"START iteration"<<std::endl;
             if (!getBytes(&c, 1)) {
                 return false;
             }
             ans = encdec.decodeNextByte(c);
-            std::cout<< "ans = "+ ans << std::endl;//TODO
+            //std::cout<< "ans = "+ ans << std::endl;//TODO
 
             if (ans != "-1") {
                 line.append(ans);
             }
+            std::cout << "ans in getline:";
+            std::cout<< ans << std::endl;
+            std::cout<<"END iteration"<<std::endl;
+
 
         } while (ans == "-1");
     } catch (std::exception &e) {
