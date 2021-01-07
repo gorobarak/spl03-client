@@ -35,15 +35,15 @@ public:
 
             std::cout << ans << std::endl;//TODO should ans be modified?
 
-            if (ans == "ACK 4" && terminated) {//ack for logout request - should terminate
+            if (ans == "ACK 4" && isTerminated()) {//ack for logout request - should terminate
                 cv.notify_all();
+                break;
             }
-            else if (ans == "ERROR 4" && terminated) {
+            else if (ans == "ERROR 4" && isTerminated()) {
                 mutex.lock();
                 terminated = false;
                 mutex.unlock();
                 cv.notify_all();
-
             }
         }
         std::this_thread::yield();
