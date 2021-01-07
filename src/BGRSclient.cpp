@@ -61,7 +61,7 @@ public:
             char buf[bufsize];
             std::cin.getline(buf, bufsize);
             std::string line(buf); //input received from kb
-            int len=line.length();
+            //int len=line.length();
             if (!cHandler.sendLine(line)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
@@ -86,7 +86,7 @@ int main (int argc, char *argv[]) {
         return 1;
     }
 
-    std::cout << " connected" << std::endl;//TODO
+    //std::cout << " connected" << std::endl;//TODO
 
     std::mutex mutex;
     bool terminated = false;

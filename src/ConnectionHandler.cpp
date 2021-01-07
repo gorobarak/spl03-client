@@ -70,7 +70,7 @@ bool ConnectionHandler::getLine(std::string& line) {
 
     try {
         do {
-            std::cout<<"START iteration"<<std::endl;
+           // std::cout<<"START iteration"<<std::endl;
             if (!getBytes(&c, 1)) {
                 return false;
             }
@@ -80,9 +80,9 @@ bool ConnectionHandler::getLine(std::string& line) {
             if (ans != "-1") {
                 line.append(ans);
             }
-            std::cout << "ans in getline:";
-            std::cout<< ans << std::endl;
-            std::cout<<"END iteration"<<std::endl;
+//            std::cout << "ans in getline:";
+//            std::cout<< ans << std::endl;
+//            std::cout<<"END iteration"<<std::endl;
 
 
         } while (ans == "-1");

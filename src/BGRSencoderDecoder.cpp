@@ -32,8 +32,8 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             buffer.push_back(opcode[1]);
 
             std::size_t split = body.find(' ');
-            std::string username(msg.substr(0,split));
-            std::string pass(msg.substr(split + 1,body.length()));
+            std::string username(body.substr(0,split));
+            std::string pass(body.substr(split + 1,body.length()));
 
             for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
@@ -51,8 +51,8 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             buffer.push_back(opcode[1]);
 
             std::size_t split = body.find(' ');
-            std::string username(msg.substr(0,split));
-            std::string pass(msg.substr(split + 1,body.length()));
+            std::string username(body.substr(0,split));
+            std::string pass(body.substr(split + 1,body.length()));
 
             for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
@@ -70,8 +70,8 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             buffer.push_back(opcode[1]);
 
             std::size_t split = body.find(' ');
-            std::string username(msg.substr(0,split));
-            std::string pass(msg.substr(split + 1,body.length()));
+            std::string username(body.substr(0,split));
+            std::string pass(body.substr(split + 1,body.length()));
 
             for (unsigned int i = 0; i < username.size(); i++) {
                 buffer.push_back(username[i]);
@@ -93,27 +93,39 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(5, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (unsigned int i = 0; i < body.size(); i++) {
-                buffer.push_back(body[i]);
-            }
+            short b = std::stoi(body);
+            char courseNum[2];
+            shortToBytes(b, courseNum);
+            buffer.push_back(courseNum[0]);
+            buffer.push_back(courseNum[1]);
+
+
+
+//            for (unsigned int i = 0; i < body.size(); i++) {
+//                buffer.push_back(body[i]);
+//            }
             break;
         }
         case KDAMCHECK:{
             shortToBytes(6, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (unsigned int i = 0; i < body.size(); i++) {
-                buffer.push_back(body[i]);
-            }
+            short b = std::stoi(body);
+            char courseNum[2];
+            shortToBytes(b, courseNum);
+            buffer.push_back(courseNum[0]);
+            buffer.push_back(courseNum[1]);
             break;
         }
         case COURSESTAT:{
             shortToBytes(7, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (unsigned int i = 0; i < body.size(); i++) {
-                buffer.push_back(body[i]);
-            }
+            short b = std::stoi(body);
+            char courseNum[2];
+            shortToBytes(b, courseNum);
+            buffer.push_back(courseNum[0]);
+            buffer.push_back(courseNum[1]);
             break;
         }
         case STUDENTSTAT: {
@@ -130,18 +142,22 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(9, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (unsigned int i = 0; i < body.size(); i++) {
-                buffer.push_back(body[i]);
-            }
+            short b = std::stoi(body);
+            char courseNum[2];
+            shortToBytes(b, courseNum);
+            buffer.push_back(courseNum[0]);
+            buffer.push_back(courseNum[1]);
             break;
         }
         case UNREGISTER:{
             shortToBytes(10, opcode);
             buffer.push_back(opcode[0]);
             buffer.push_back(opcode[1]);
-            for (unsigned int i = 0; i < body.size(); i++) {
-                buffer.push_back(body[i]);
-            }
+            short b = std::stoi(body);
+            char courseNum[2];
+            shortToBytes(b, courseNum);
+            buffer.push_back(courseNum[0]);
+            buffer.push_back(courseNum[1]);
             break;
         }
         case MYCOURSES: {
@@ -176,19 +192,19 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
     //std::cout<< "opcode = " + std::to_string(opcode)<<std::endl;
     idx++;
     pushByte(c);
-    std::cout<<"opcode:";
-    std::cout<<opcode<<std::endl;
-    std::cout<< "idx = " + std::to_string(idx)<< std::endl;
+    //std::cout<<"opcode:";
+    //std::cout<<opcode<<std::endl;
+    //std::cout<< "idx = " + std::to_string(idx)<< std::endl;
     if (idx == 2) {
         char arr[2];
         arr[0] = buffer[0];
         arr[1] = buffer[1];
 
-        std::cout << "opCode: ";
-        std::cout << arr[0];
-        std::cout << ", ";
-        std::cout << arr[1];
-        std::cout << "\n";
+//        std::cout << "opCode: ";
+//        std::cout << arr[0];
+//        std::cout << ", ";
+//        std::cout << arr[1];
+//        std::cout << "\n";
 
         opcode = bytesToShort(arr);
         //std::cout<<"opcode:" + std::to_string(opcode) << std::endl;
@@ -201,11 +217,11 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
         //std::cout << "subpcode2:" + std::to_string(buffer[3] - '0') << std::endl;
 
         subjectOpcode = bytesToShort(arr);
-        std::cout << "subjectCode: ";
-        std::cout << arr[0];
-        std::cout << ", ";
-        std::cout << arr[1];
-        std::cout << "\n";
+//        std::cout << "subjectCode: ";
+//        std::cout << arr[0];
+//        std::cout << ", ";
+//        std::cout << arr[1];
+//        std::cout << "\n";
     }
 
     if(idx <= 4) {
@@ -215,7 +231,7 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
     switch (opcode) {
         case 12: {
             if (c == '\0') {
-                std::cout << "case 12" << std::endl;
+                //std::cout << "case 12" << std::endl;
                 //std::cout<<"reached ack"<<std::endl;
                 //std::cout<< "-------------------------------"<<std::endl;
                 return ("ACK " + std::to_string(subjectOpcode) + "\n" + popString());
@@ -227,7 +243,7 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
             if (c == '\0') {
                 idx = 0;
                 buffer.clear();
-                std::cout << "case 13" << std::endl;
+                //std::cout << "case 13" << std::endl;
                 //std::cout<<"reached ERR"<<std::endl;
                 //std::cout<< "-------------------------------"<<std::endl;
                 return ("ERROR " + std::to_string(subjectOpcode));
@@ -255,5 +271,7 @@ std::string BGRSencoderDecoder::popString() {
 void BGRSencoderDecoder::pushByte(char c) {
     buffer.push_back(c);
 }
+
+BGRSencoderDecoder::BGRSencoderDecoder() : idx(0), opcode(0), subjectOpcode(0), buffer() {}
 
 
