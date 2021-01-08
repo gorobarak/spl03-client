@@ -213,15 +213,8 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
         char arr[2];
         arr[0] = buffer[2];
         arr[1] = buffer[3];
-        //std::cout << "subpcode1:" + std::to_string(buffer[2] - '0')<< std::endl;
-        //std::cout << "subpcode2:" + std::to_string(buffer[3] - '0') << std::endl;
 
         subjectOpcode = bytesToShort(arr);
-//        std::cout << "subjectCode: ";
-//        std::cout << arr[0];
-//        std::cout << ", ";
-//        std::cout << arr[1];
-//        std::cout << "\n";
     }
 
     if(idx <= 4) {

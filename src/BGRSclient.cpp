@@ -124,6 +124,6 @@ int main (int argc, char *argv[]) {
     t2.join();
 
     connectionHandler.close();
-    std::cout << "Exiting...\n" << std::endl;
+    //std::cout << "Exiting...\n" << std::endl;
     return 0;
 }
