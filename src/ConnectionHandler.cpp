@@ -88,7 +88,7 @@ bool ConnectionHandler::getLine(std::string& line) {
 
 bool ConnectionHandler::sendLine(std::string& line) {
     std::string encoded = encdec.encode(line);
-    return sendBytes(encoded.c_str(), encoded.length());//TODO do we get \0 char twice?
+    return sendBytes(encoded.c_str(), encoded.length());
 }
  
 

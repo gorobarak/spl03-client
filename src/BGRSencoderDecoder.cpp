@@ -98,12 +98,6 @@ std::string BGRSencoderDecoder::encode(std::string msg) {
             shortToBytes(b, courseNum);
             buffer.push_back(courseNum[0]);
             buffer.push_back(courseNum[1]);
-
-
-
-//            for (unsigned int i = 0; i < body.size(); i++) {
-//                buffer.push_back(body[i]);
-//            }
             break;
         }
         case KDAMCHECK:{
@@ -187,27 +181,14 @@ short BGRSencoderDecoder::bytesToShort(char* bytesArr) {
 }
 
 std::string BGRSencoderDecoder::decodeNextByte(char c) {
-
-    //std::cout<< "idx = " + std::to_string(idx)<<std::endl;
-    //std::cout<< "opcode = " + std::to_string(opcode)<<std::endl;
     idx++;
     pushByte(c);
-    //std::cout<<"opcode:";
-    //std::cout<<opcode<<std::endl;
-    //std::cout<< "idx = " + std::to_string(idx)<< std::endl;
     if (idx == 2) {
         char arr[2];
         arr[0] = buffer[0];
         arr[1] = buffer[1];
 
-//        std::cout << "opCode: ";
-//        std::cout << arr[0];
-//        std::cout << ", ";
-//        std::cout << arr[1];
-//        std::cout << "\n";
-
         opcode = bytesToShort(arr);
-        //std::cout<<"opcode:" + std::to_string(opcode) << std::endl;
     }
     if (idx == 4) {
         char arr[2];
@@ -224,9 +205,6 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
     switch (opcode) {
         case 12: {
             if (c == '\0') {
-                //std::cout << "case 12" << std::endl;
-                //std::cout<<"reached ack"<<std::endl;
-                //std::cout<< "-------------------------------"<<std::endl;
                 return ("ACK " + std::to_string(subjectOpcode)  + popString());
             }
             break;
@@ -236,17 +214,10 @@ std::string BGRSencoderDecoder::decodeNextByte(char c) {
             if (c == '\0') {
                 idx = 0;
                 buffer.clear();
-                //std::cout << "case 13" << std::endl;
-                //std::cout<<"reached ERR"<<std::endl;
-                //std::cout<< "-------------------------------"<<std::endl;
                 return ("ERROR " + std::to_string(subjectOpcode));
             }
             break;
         }
-//        default: {
-//            std::cout<< "-------------------------------"<<std::endl;
-//            return "-1";
-//        }
     }
     return "-1";
 }
